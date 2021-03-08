@@ -1,6 +1,7 @@
 package application;
 
 import model.entities.Reservation;
+import model.excepctions.DomainException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,20 +9,19 @@ import java.util.Date;
 import java.util.Scanner;
 
 public class Program {
-    public static void main(String[] Args) throws ParseException {
+    public static void main(String[] Args){
         Scanner cs = new Scanner(System.in);
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-        sysout("Room number: ");
-        int number = cs.nextInt();
-        sysout("Check-in date (dd/MM/yyyy): ");
-        Date checkIn = sdf.parse(cs.next());
-        sysout("Check-out date (dd/MM/yyyy): ");
-        Date checkOut = sdf.parse(cs.next());
+        try {
+            sysout("Room number: ");
+            int number = cs.nextInt();
+            sysout("Check-in date (dd/MM/yyyy): ");
+            Date checkIn = sdf.parse(cs.next());
+            sysout("Check-out date (dd/MM/yyyy): ");
+            Date checkOut = sdf.parse(cs.next());
 
-        if (!checkOut.after(checkIn)) {
-            sysout("Error in reservation: Check-out date must be after check-in date");
-        } else {
+
             Reservation reservation = new Reservation(number, checkIn, checkOut);
             System.out.println("Reservation: " + reservation);
 
@@ -33,13 +33,19 @@ public class Program {
             checkOut = sdf.parse(cs.next());
 
 
-            String error = reservation.updateDates(checkIn, checkOut);
-            if (error != null) {
-                sysout("Error in reservation: " + error);
-            } else {
-                System.out.println("Reservation: " + reservation);
-            }
+            reservation.updateDates(checkIn, checkOut);
+            System.out.println("Reservation: " + reservation);
         }
+        catch(ParseException e){
+            sysout("Invalid date format");
+        }
+        catch(DomainException e){
+            sysout("Error in reservation: " + e.getMessage());
+        }
+        catch (RuntimeException e){
+            sysout("Unexpected error");
+        }
+
 
         cs.close();
     }
